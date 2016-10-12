@@ -192,7 +192,7 @@ for cfl  in cfl_delta:
   ph_shape.append(p[0])
 
 pl.grid()
-pl.xlabel('$\Delta h_{\delta}$')
+pl.xlabel('$\Delta h/\delta$')
 pl.ylabel('$||e||_2/||\phi||_2$')
 #pl.legend(loc='best')
 #pl.title("shape errors: $c={0}$".format(c))
@@ -212,7 +212,7 @@ for cfl in cfl_delta:
   ph_velocity.append(p[0])
 
 pl.grid()
-pl.xlabel('$\Delta h_{\delta}$')
+pl.xlabel('$\Delta h/\delta$')
 pl.ylabel('$|\Delta c|/c$')
 #pl.legend(loc='best')
 #pl.title("relative velocity errors: $c={0}$".format(c))
