@@ -29,6 +29,7 @@ cd magma_migration
 tfsimulationharness --test magmawaves.shml
 ```
 * parallel scaling
+
 Note that the parallel scaling test will most likely require editting before running as it currently uses up to 128 processes.
 ```
 cd busse_parallel
