@@ -30,10 +30,11 @@ tfsimulationharness --test magmawaves.shml
 ```
 * parallel scaling
 
-Note that the parallel scaling test will most likely require editting before running as it currently uses up to 128 processes.
 ```
 cd busse_parallel
-tfsimulationharness --test busse_parallel
+tfsimulationharness --test busse.shml
 ```
+Note that the parallel scaling test requires editting before running.  It is currently set to run from 1 to 128 processes (so is not
+recommended on a desktop).  Additionally, its highest resolution (ncells=64) has > 5 million dofs (also not recommended on a desktop).
 
 
