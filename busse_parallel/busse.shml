@@ -18,15 +18,15 @@
       <parameter_sweep>
         <parameter name="psteps">
           <values>
-            <string_value lines="1">0 1 2 3 4</string_value>
+            <string_value lines="1">0 1 2 3 4 5 6 7</string_value>
           </values>
           <process_scale>
-            <integer_value shape="2" rank="1">6 12 24 48 96</integer_value>
+            <integer_value shape="2" rank="1">1 2 4 8 16 32 64 128</integer_value>
           </process_scale>
         </parameter>
         <parameter name="ncells">
           <values>
-            <string_value lines="1">16</string_value>
+            <string_value lines="1">32 64</string_value>
           </values>
         </parameter>
         <parameter name="ntimesteps">
@@ -76,52 +76,95 @@ input_file = template(input_file).safe_substitute({'ncells':ncells, 'factor':'0.
         <variable name="nlogs">
           <string_value lines="20" type="code" language="python">import glob
 
+nlogs = None
 logs = glob.glob("terraferma.log-*")
-nlogs = len(logs)</string_value>
+if len(logs) &gt; 0:
+  nlogs = len(logs)</string_value>
         </variable>
         <variable name="walltime">
           <string_value lines="20" type="code" language="python">import libspud
 from buckettools.statfile import parser
+import os.path
 
-libspud.load_options("busse.tfml")
-ioname = libspud.get_option("/io/output_base_name")
-libspud.clear_options()
+walltime = None
 
-stat = parser(ioname+".stat")
+if os.path.isfile("busse.tfml"):
+  libspud.load_options("busse.tfml")
+  ioname = libspud.get_option("/io/output_base_name")
+  libspud.clear_options()
 
-walltime = stat["ElapsedWallTime"]["value"][-1]</string_value>
+  if os.path.isfile(ioname+".stat"):
+    stat = parser(ioname+".stat")
+    walltime = stat["ElapsedWallTime"]["value"][-1]</string_value>
         </variable>
         <variable name="numProcs">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-numProcs = numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+numProcs = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  numProcs = numProcs</string_value>
         </variable>
         <variable name="LocalTimes">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-petsc_time = sum(LocalTimes.values())/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+LocalTimes = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  LocalTimes = sum(LocalTimes.values())/numProcs</string_value>
         </variable>
         <variable name="SNESSolveTime">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-SNESSolveTime =  sum([  Stages['Main Stage']['SNESSolve'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+SNESSolveTime = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  SNESSolveTime =  sum([  Stages['Main Stage']['SNESSolve'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
         </variable>
         <variable name="SNESFunctionEvalTime">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-SNESFunctionEvalTime =  sum([  Stages['Main Stage']['SNESFunctionEval'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+SNESFunctionEvalTime = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  SNESFunctionEvalTime =  sum([  Stages['Main Stage']['SNESFunctionEval'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
         </variable>
         <variable name="SNESJacobianEvalTime">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-SNESJacobianEvalTime = sum([  Stages['Main Stage']['SNESJacobianEval'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+SNESJacobianEvalTime = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  SNESJacobianEvalTime = sum([  Stages['Main Stage']['SNESJacobianEval'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
         </variable>
         <variable name="KSPSolveCount">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-KSPSolveCount =  max(Stages['Main Stage']['KSPSolve'][n]['count'] for n in range(numProcs))</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+KSPSolveCount = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  KSPSolveCount =  max(Stages['Main Stage']['KSPSolve'][n]['count'] for n in range(numProcs))</string_value>
         </variable>
         <variable name="KSPSolveTime">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-KSPSolveTime =   sum([  Stages['Main Stage']['KSPSolve'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+KSPSolveTime = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  KSPSolveTime =   sum([  Stages['Main Stage']['KSPSolve'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
         </variable>
         <variable name="PCSetupTime">
-          <string_value lines="20" type="code" language="python">execfile('petsc_log.py')
-PCSetupTime =  sum([  Stages['Main Stage']['PCSetUp'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+          <string_value lines="20" type="code" language="python">import os.path
+PCSetupTime = None
+if os.path.isfile('petsc_log.py'):
+  execfile('petsc_log.py')
+  PCSetupTime =  sum([  Stages['Main Stage']['PCSetUp'][n]['time'] for n in range(numProcs) ])/numProcs</string_value>
+        </variable>
+        <variable name="dofs">
+          <string_value type="code" lines="20" language="python">import glob
+import os.path
+
+dofs = None
+if os.path.isfile("terraferma.log-0"):
+  f = file("terraferma.log-0", "r")
+  l = f.read()
+  mat = l.rfind("Mat Object:")
+  rows = l[mat:].find("rows=")
+  erows = l[mat+rows:].find(",")
+  dofs = int(l[mat+rows:mat+rows+erows].split("=")[-1])</string_value>
         </variable>
       </variables>
     </simulation>
@@ -133,7 +176,62 @@ psteps = walltime.parameters['psteps']
 for nc in ncells:
   for ps in psteps:
     slice = {'ncells': nc, 'psteps': ps}
-    print 'ncells = %s, nlogs = %d, numProcs = %d, walltime = %f, LocalTimes = %f, SNESSolveTime = %f, SNESFunctionalEvalTime = %f, SNESJacobianEvalTime = %f, KSPSolveCount = %d, KSPSolveTime = %f, PCSetupTime = %f'%(nc, nlogs[slice], numProcs[slice], walltime[slice], LocalTimes[slice], SNESSolveTime[slice], SNESFunctionalEvalTime[slice], SNESJacobianEvalTime[slice], KSPSolveCount[slice], KSPSolveTime[slice], PCSetupTime[slice])</string_value>
+    if nlogs[slice] is not None:
+      print 'ncells = %s, dofs = %d, nlogs = %d, numProcs = %d, walltime = %f, LocalTimes = %f, SNESSolveTime = %f, SNESFunctionEvalTime = %f, SNESJacobianEvalTime = %f, KSPSolveCount = %d, KSPSolveTime = %f, PCSetupTime = %f'%(nc, dofs[slice], nlogs[slice], numProcs[slice], walltime[slice], LocalTimes[slice], SNESSolveTime[slice], SNESFunctionEvalTime[slice], SNESJacobianEvalTime[slice], KSPSolveCount[slice], KSPSolveTime[slice], PCSetupTime[slice])</string_value>
+    </test>
+    <test name="plot">
+      <string_value lines="20" type="code" language="python">import matplotlib 
+matplotlib.use('Agg')
+import matplotlib.pyplot as pl
+import numpy
+
+fig = pl.figure()
+ncells = walltime.parameters['ncells']
+psteps = walltime.parameters['psteps']
+allnp = set()
+symbols = ['o', 'v', 's', 'p', '*', '^']
+legendlines = []
+legendlabels = []
+assemblies = []
+for j, nc in enumerate(ncells):
+  print "nc = ", nc
+  slice = {'ncells': nc}
+  ndofs = [d for i, d in enumerate(dofs[slice]) if numProcs[slice][i] is not None][0]
+  print "ndofs = ", ndofs
+  np = [p for i, p in enumerate(numProcs[slice]) if p is not None]
+  allnp |= set(np)
+  print np
+  times = numpy.asarray([t for i, t in enumerate(LocalTimes[slice]) if numProcs[slice][i] is not None])
+  print "times = ", times/times[0]
+  assembly = numpy.asarray([SNESJacobianEvalTime[slice][i]+SNESFunctionEvalTime[slice][i] for i, p in enumerate(numProcs[slice]) if p is not None])
+  print "assembly = ", assembly
+  assemblies.append(assembly/times[0])
+  pl.loglog(np, times/times[0], symbols[j]+'k-')
+  pl.loglog(np, assembly/times[0], symbols[j]+'k--')
+  pl.hold(True)
+  legendlines.append(pl.Line2D([], [], c='k', linestyle=' ', marker=symbols[j]))
+  legendlabels.append(r"$%s\times%d\times%d$ cells ($%d$ dofs)"%(nc, int(int(nc)*1.0079), int(int(nc)*0.6283), ndofs))
+
+allnp = list(allnp)
+allnp.sort()
+pl.xticks(allnp, allnp)
+halves = [1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125]
+#for assembly in assemblies:
+#  halves.append(assembly[0])
+#  for a in assembly[1:]:
+#    halves.append(halves[-1]*0.5)
+#halves.sort()
+pl.yticks(halves, halves)
+pl.xlabel(r"number processes")
+pl.ylabel(r"scaled time")
+pl.grid()
+pl.xlim([allnp[0], allnp[-1]])
+legendlines.append(pl.Line2D([], [], c='k', linestyle='-'))
+legendlabels.append(r"scaled total wall time")
+legendlines.append(pl.Line2D([], [], c='k', linestyle='--'))
+legendlabels.append(r"scaled assembly time")
+pl.legend(legendlines, legendlabels, loc="best")
+pl.savefig("busse_scaling.pdf")</string_value>
     </test>
   </tests>
 </harness_options>
