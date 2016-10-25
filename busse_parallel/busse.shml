@@ -189,7 +189,8 @@ fig = pl.figure()
 ncells = walltime.parameters['ncells']
 psteps = walltime.parameters['psteps']
 allnp = set()
-symbols = ['o', 's', 'v', 'p', '*', '^']
+symbols = ['o', 'o', 's', 's', 'v', 'v', 'p', 'p']
+fillstyles = ['k', 'w']
 legendlines = []
 legendlabels = []
 assemblies = []
@@ -206,10 +207,10 @@ for j, nc in enumerate(ncells):
   assembly = numpy.asarray([SNESJacobianEvalTime[slice][i]+SNESFunctionEvalTime[slice][i] for i, p in enumerate(numProcs[slice]) if p is not None])
   print "assembly = ", assembly
   assemblies.append(assembly/times[0])
-  pl.loglog(np, times/times[0], symbols[j]+'k-')
-  pl.loglog(np, assembly/times[0], symbols[j]+'k--')
+  pl.loglog(np, times/times[0], marker=symbols[j%len(symbols)], markeredgewidth=1.5, color='k', ls='-', markerfacecolor=fillstyles[j%len(fillstyles)])
+  pl.loglog(np, assembly/times[0], marker=symbols[j%len(symbols)], markeredgewidth=1.5, color='k', ls='--', markerfacecolor=fillstyles[j%len(fillstyles)])
   pl.hold(True)
-  legendlines.append(pl.Line2D([], [], c='k', linestyle=' ', marker=symbols[j]))
+  legendlines.append(pl.Line2D([], [], c='k', linestyle=' ', markeredgewidth=1.5, marker=symbols[j], markerfacecolor=fillstyles[j%len(fillstyles)]))
   legendlabels.append(r"$%s\times%d\times%d$ cells ($%d$ dofs)"%(nc, int(int(nc)*1.0079), int(int(nc)*0.6283), ndofs))
 
 allnp = list(allnp)
