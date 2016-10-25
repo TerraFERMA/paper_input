@@ -214,7 +214,7 @@ for j, nc in enumerate(ncells):
 
 allnp = list(allnp)
 allnp.sort()
-pl.xticks(allnp, allnp, fontsize='large')
+pl.xticks(allnp, allnp, fontsize='x-large')
 halves = [1.0, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625]
 halvest = ["1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64"]
 #for assembly in assemblies:
@@ -222,16 +222,16 @@ halvest = ["1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64"]
 #  for a in assembly[1:]:
 #    halves.append(halves[-1]*0.5)
 #halves.sort()
-pl.yticks(halves, halvest, fontsize='large')
-pl.xlabel(r"number processes", fontsize='large')
-pl.ylabel(r"scaled time", fontsize='large')
+pl.yticks(halves, halvest, fontsize='x-large')
+pl.xlabel(r"number processes", fontsize='x-large')
+pl.ylabel(r"scaled time", fontsize='x-large')
 pl.grid()
 pl.xlim([allnp[0], allnp[-1]])
 legendlines.append(pl.Line2D([], [], c='k', linestyle='-'))
 legendlabels.append(r"scaled total wall time")
 legendlines.append(pl.Line2D([], [], c='k', linestyle='--'))
 legendlabels.append(r"scaled assembly time")
-pl.legend(legendlines, legendlabels, loc="best", fontsize='large')
+pl.legend(legendlines, legendlabels, loc="best", fontsize='x-large')
 pl.savefig("busse_scaling.pdf")</string_value>
     </test>
   </tests>
