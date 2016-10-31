@@ -211,7 +211,7 @@ for j, nc in enumerate(ncells):
   pl.loglog(np, assembly/times[0], marker=symbols[j%len(symbols)], markeredgewidth=1.5, color='k', ls='--', markerfacecolor=fillstyles[j%len(fillstyles)])
   pl.hold(True)
   legendlines.append(pl.Line2D([], [], c='k', linestyle=' ', markeredgewidth=1.5, marker=symbols[j], markerfacecolor=fillstyles[j%len(fillstyles)]))
-  legendlabels.append(r"$%s\times%d\times%d$ cells ($%d$ dofs)"%(nc, int(int(nc)*1.0079), int(int(nc)*0.6283), ndofs))
+  legendlabels.append(r"$%d\times%d\times%d$ cells ($%d$ dofs)"%(int(int(nc)*1.0079), int(int(nc)*0.6283), int(nc), ndofs))
 
 allnp = list(allnp)
 allnp.sort()
