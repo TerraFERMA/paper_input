@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<harness_options>
+  <length>
+    <string_value lines="1">long</string_value>
+  </length>
+  <owner>
+    <string_value lines="1">mspieg</string_value>
+  </owner>
+  <description>
+    <string_value lines="1">Simple 1-way coupled ridge model with p2dg porosity</string_value>
+  </description>
+  <simulations>
+    <simulation name="Ridgemodel">
+      <input_file>
+        <string_value lines="1" type="filename">ridgemodel.tfml</string_value>
+      </input_file>
+      <run_when name="input_changed_or_output_missing"/>
+      <number_processes>
+        <integer_value rank="0">2</integer_value>
+      </number_processes>
+      <dependencies>
+        <run name="Mesh">
+          <input_file>
+            <string_value lines="1" type="filename">ridgemesh.geo</string_value>
+          </input_file>
+          <run_when name="input_changed_or_output_missing"/>
+          <required_output>
+            <filenames name="mesh">
+              <string>
+                <string_value lines="1" type="filename">ridgemesh.xml.gz</string_value>
+              </string>
+            </filenames>
+          </required_output>
+          <commands>
+            <command name="gmsh">
+              <string_value lines="1">gmsh -2 -algo del2d ridgemesh.geo ridgemesh.msh</string_value>
+            </command>
+            <command name="convert">
+              <string_value lines="1">dolfin-convert ridgemesh.msh ridgemesh.xml</string_value>
+            </command>
+            <command name="compress">
+              <string_value lines="1">gzip ridgemesh.xml</string_value>
+            </command>
+          </commands>
+        </run>
+      </dependencies>
+    </simulation>
+  </simulations>
+</harness_options>

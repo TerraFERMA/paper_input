@@ -28,6 +28,11 @@ make run
 cd magma_migration
 tfsimulationharness --test magmawaves.shml
 ```
+* ridge
+```
+cd ridge
+tfsimulationharness --run ridgemodel.shml
+```
 * parallel scaling
 
 ```

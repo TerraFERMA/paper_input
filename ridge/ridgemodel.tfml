@@ -1,0 +1,1087 @@
+<?xml version='1.0' encoding='utf-8'?>
+<terraferma_options>
+  <geometry>
+    <dimension>
+      <integer_value rank="0">2</integer_value>
+    </dimension>
+    <mesh name="Mesh">
+      <source name="File">
+        <file>
+          <string_value lines="1" type="filename">ridgemesh</string_value>
+        </file>
+        <cell>
+          <string_value lines="1">triangle</string_value>
+        </cell>
+      </source>
+    </mesh>
+  </geometry>
+  <io>
+    <output_base_name>
+      <string_value lines="1">ridge_out</string_value>
+    </output_base_name>
+    <visualization>
+      <element name="P2DG">
+        <family>
+          <string_value lines="1">DG</string_value>
+        </family>
+        <degree>
+          <integer_value rank="0">2</integer_value>
+        </degree>
+      </element>
+    </visualization>
+    <dump_periods>
+      <visualization_period_in_timesteps>
+        <integer_value rank="0">1</integer_value>
+      </visualization_period_in_timesteps>
+      <statistics_period_in_timesteps>
+        <integer_value rank="0">1</integer_value>
+      </statistics_period_in_timesteps>
+      <detectors_period>
+        <real_value rank="0">1.</real_value>
+      </detectors_period>
+    </dump_periods>
+    <detectors/>
+  </io>
+  <timestepping>
+    <current_time>
+      <real_value rank="0">0.0</real_value>
+    </current_time>
+    <finish_time>
+      <real_value rank="0">15.</real_value>
+    </finish_time>
+    <timestep>
+      <coefficient name="Timestep">
+        <ufl_symbol name="global">
+          <string_value lines="1">dt</string_value>
+        </ufl_symbol>
+        <type name="Constant">
+          <rank name="Scalar" rank="0">
+            <value name="WholeMesh">
+              <constant>
+                <real_value rank="0">0.0</real_value>
+              </constant>
+            </value>
+          </rank>
+        </type>
+      </coefficient>
+      <adaptive>
+        <constraint name="Courant">
+          <system name="CourantNumber"/>
+          <field name="CourantNumber"/>
+          <requested_maximum_value>
+            <real_value rank="0">2</real_value>
+          </requested_maximum_value>
+        </constraint>
+        <adapt_period_in_timesteps>
+          <integer_value rank="0">2</integer_value>
+        </adapt_period_in_timesteps>
+        <increase_tolerance>
+          <real_value rank="0">1.04</real_value>
+        </increase_tolerance>
+      </adaptive>
+    </timestep>
+  </timestepping>
+  <global_parameters>
+    <dolfin>
+      <ghost_mode name="shared_facet"/>
+    </dolfin>
+  </global_parameters>
+  <system name="Ridge">
+    <mesh name="Mesh"/>
+    <ufl_symbol name="global">
+      <string_value lines="1">u</string_value>
+    </ufl_symbol>
+    <field name="Velocity">
+      <ufl_symbol name="global">
+        <string_value lines="1">v</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Vector" rank="1">
+          <element name="P2">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant name="dim">
+              <real_value shape="2" dim1="dim" rank="1">0.0 0.0</real_value>
+            </constant>
+          </initial_condition>
+          <boundary_condition name="Top">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">4</integer_value>
+            </boundary_ids>
+            <sub_components name="All">
+              <type type="boundary_condition" name="Dirichlet">
+                <cpp rank="1">
+                  <members>
+                    <string_value lines="20" type="code" language="cpp">// do nothing</string_value>
+                  </members>
+                  <initialization>
+                    <string_value lines="20" type="code" language="cpp">// do nothing</string_value>
+                  </initialization>
+                  <eval>
+                    <string_value lines="20" type="code" language="cpp">//return velocity Boundary condition V = U0*erf(x/lambda) i + 0 K
+//5cm/yr spreading rate non-dimensionalized by reference fluid velocity
+double U0 = 0.03184644094286575;
+double x_lambda = 0.05;
+
+values[0] = U0*std::erf(x[0]/x_lambda);
+values[1] = 0.;</string_value>
+                  </eval>
+                </cpp>
+              </type>
+            </sub_components>
+          </boundary_condition>
+          <boundary_condition name="LeftX">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">1</integer_value>
+            </boundary_ids>
+            <sub_components name="W">
+              <components>
+                <integer_value shape="1" rank="1">1</integer_value>
+              </components>
+              <type type="boundary_condition" name="Dirichlet">
+                <constant>
+                  <real_value rank="0">0.</real_value>
+                </constant>
+              </type>
+            </sub_components>
+          </boundary_condition>
+          <boundary_condition name="RightX">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">2</integer_value>
+            </boundary_ids>
+            <sub_components name="W">
+              <components>
+                <integer_value shape="1" rank="1">1</integer_value>
+              </components>
+              <type type="boundary_condition" name="Dirichlet">
+                <constant>
+                  <real_value rank="0">0.</real_value>
+                </constant>
+              </type>
+            </sub_components>
+          </boundary_condition>
+          <boundary_condition name="Bottom">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">3</integer_value>
+            </boundary_ids>
+            <sub_components name="U">
+              <components>
+                <integer_value shape="1" rank="1">0</integer_value>
+              </components>
+              <type type="boundary_condition" name="Dirichlet">
+                <constant>
+                  <real_value rank="0">0.</real_value>
+                </constant>
+              </type>
+            </sub_components>
+          </boundary_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <field name="Pressure">
+      <ufl_symbol name="global">
+        <string_value lines="1">p</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P1">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">1</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.0</real_value>
+            </constant>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <field name="Temperature">
+      <ufl_symbol name="global">
+        <string_value lines="1">T</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P2">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <python rank="0">
+              <string_value lines="20" type="code" language="python">def val(x):
+  return -x[1]</string_value>
+              <comment>(string)</comment>
+            </python>
+          </initial_condition>
+          <boundary_condition name="Top">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">4</integer_value>
+            </boundary_ids>
+            <sub_components name="All">
+              <type type="boundary_condition" name="Dirichlet">
+                <constant>
+                  <real_value rank="0">0.0</real_value>
+                </constant>
+              </type>
+            </sub_components>
+          </boundary_condition>
+          <boundary_condition name="Bottom">
+            <boundary_ids>
+              <integer_value shape="1" rank="1">3</integer_value>
+            </boundary_ids>
+            <sub_components name="All">
+              <type type="boundary_condition" name="Dirichlet">
+                <constant>
+                  <real_value rank="0">1.0</real_value>
+                </constant>
+              </type>
+            </sub_components>
+          </boundary_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+        <include_in_steady_state>
+          <norm>
+            <string_value lines="1">linf</string_value>
+          </norm>
+        </include_in_steady_state>
+        <include_in_detectors/>
+      </diagnostics>
+    </field>
+    <field name="Porosity">
+      <ufl_symbol name="global">
+        <string_value lines="1">phi</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P2DG">
+            <family>
+              <string_value lines="1">DG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <python rank="0">
+              <string_value lines="20" type="code" language="python">def val(x):
+  from numpy import tanh
+  y0 = -0.7
+  y_lambda = 0.05
+  phiinit = 0.1
+  return phiinit*0.5*(tanh((x[1]-y0)/y_lambda)+1.)</string_value>
+            </python>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+        <include_in_detectors/>
+      </diagnostics>
+    </field>
+    <field name="CompactionPressure">
+      <ufl_symbol name="global">
+        <string_value lines="1">cp</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P2">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.0</real_value>
+            </constant>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <coefficient name="phieps">
+      <ufl_symbol name="global">
+        <string_value lines="1">phieps</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">6.e-3</real_value>
+              <comment>minimum epsilon such that delta_epsilon ~6.e-3 (assuming non-dimensional eta ~ 1)</comment>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+    </coefficient>
+    <coefficient name="khat">
+      <ufl_symbol name="global">
+        <string_value lines="1">khat</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Vector" rank="1">
+          <value type="value" name="WholeMesh">
+            <constant name="dim">
+              <real_value shape="2" dim1="dim" rank="1">0.0 1.0</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+    </coefficient>
+    <coefficient name="phi0">
+      <ufl_symbol name="global">
+        <string_value lines="1">phi0</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.007506661079389783</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+      </diagnostics>
+    </coefficient>
+    <coefficient name="n">
+      <ufl_symbol name="global">
+        <string_value lines="1">n</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">3.</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+      <comment>permeability exponent</comment>
+    </coefficient>
+    <coefficient name="m">
+      <ufl_symbol name="global">
+        <string_value lines="1">m</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">1.</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+      <comment>permeability exponent</comment>
+    </coefficient>
+    <coefficient name="Gamma0">
+      <ufl_symbol name="global">
+        <string_value lines="1">Gamma0</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">26.643003844827643</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_statistics/>
+      </diagnostics>
+    </coefficient>
+    <coefficient name="dFdy">
+      <ufl_symbol name="global">
+        <string_value lines="1">dFdy</string_value>
+      </ufl_symbol>
+      <type name="Expression">
+        <rank name="Scalar" rank="0">
+          <element name="P2">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <value type="value" name="WholeMesh">
+            <cpp rank="0">
+              <members>
+                <string_value lines="20" type="code" language="cpp">//do nothing</string_value>
+              </members>
+              <initialization>
+                <string_value lines="20" type="code" language="cpp">//do nothing</string_value>
+              </initialization>
+              <eval>
+                <string_value lines="20" type="code" language="cpp">const double y0 = -0.7;
+const double y1 = -0.2;
+const double y_lambda = .05;
+
+values[0] = 0.5*(tanh((x[1]-y0)/y_lambda) - tanh((x[1]-y1)/y_lambda))/(y1 - y0);</string_value>
+              </eval>
+            </cpp>
+          </value>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </coefficient>
+    <coefficient name="h_on_delta_squared">
+      <ufl_symbol name="global">
+        <string_value lines="1">h2d2</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.9859022970492115</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_statistics/>
+      </diagnostics>
+    </coefficient>
+    <coefficient name="DeltaV">
+      <ufl_symbol name="global">
+        <string_value lines="1">deltaV</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.0</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+    </coefficient>
+    <coefficient name="PecletNumber">
+      <ufl_symbol name="global">
+        <string_value lines="1">Pe</string_value>
+      </ufl_symbol>
+      <type name="Constant">
+        <rank name="Scalar" rank="0">
+          <value type="value" name="WholeMesh">
+            <constant>
+              <real_value rank="0">217.87739146059505</real_value>
+            </constant>
+          </value>
+        </rank>
+      </type>
+      <diagnostics/>
+    </coefficient>
+    <nonlinear_solver name="Solver">
+      <type name="SNES">
+        <form name="Residual" rank="0">
+          <string_value lines="20" type="code" language="python"># theta weighted variables
+T_half = 0.5*(T_i + T_n)
+v_half = 0.5*(v_i + v_n)
+phi_half = 0.5*(phi_i + phi_n)
+
+# outward facing facet normal
+fn = FacetNormal(u.ufl_domain())
+
+# inverse (regularized) bulk viscosity function
+# (assuming isoviscous shear viscosity)
+eta = 1.
+invzeta_i = ((phi_i + phieps)**m)/eta
+invzeta_n = ((phi_n + phieps)**m)/eta
+
+# permeability
+K_i       = phi_i**n
+Kreg_i    = (phi_i + phieps)**n
+
+# facet normal solid velocity
+vn = dot(v_half, fn)
+# rectified normal solid velocity ( = vn if vn &gt; 0, 0 otherwise)
+vnout = 0.5*(vn + abs(vn))
+
+# melting rate
+Gamma_i = v_i[1]*dFdy
+Gamma_half = v_half[1]*dFdy
+
+# strain rate and stress
+# (assuming isoviscous shear viscosity, eta = 1 above)
+edot = sym(grad(v_i))
+tau = 2.*eta*(edot - tr(edot)*Identity(2)/3)
+
+# velocity, pressure and temperature residuals
+Fv = ((phi0**(m-1)/h2d2)*inner(sym(grad(v_t)), tau) - div(v_t)*p_i - v_t[1]*phi0*phi)*dx
+Fp = -p_t*(div(v_i) - phi0*h2d2*invzeta_i*cp_i)*dx
+FT = (T_t*((T_i - T_n) + dt*inner(v_half, grad(T_half))) + 
+         dt/Pe*inner(grad(T_t), grad(T_half)))*dx
+
+# body integrals for porosity
+bphim = phi_t*(phi_i - phi_n - 
+               dt*0.5*h2d2*((1 - phi0*phi_i)*cp_i*invzeta_i + 
+                            (1 - phi0*phi_n)*cp_n*invzeta_n) -
+               dt*Gamma0*Gamma_half)
+# body integrals for advective integrals
+bphia = -dt*dot(grad(phi_t), v_half*phi_half) - dt*phi_t*div(v_half)*phi_half
+# all porosity body integrals
+bphi = bphim + bphia
+# surface integrals over external boundaries
+sphisd = dt*phi_t*(vnout*phi_half) # outflows but 0 if inflow at sides
+sphiex = dt*phi_t*(vn*phi_half)    # outflow at top and bottom
+# surface integrals over interior facets
+phiupwind = vnout('+')*phi_half('+') - vnout('-')*phi_half('-')
+sphifacet = dt*jump(phi_t)*phiupwind
+# porosity residual
+Fphi =  bphi*dx + sphisd*(ds(1)+ds(2)) + sphiex*(ds(3)+ds(4)) + sphifacet*dS
+
+# body integrals for compaction pressure
+bcp = inner(grad(cp_t), Kreg_i*grad(cp_i)) + \
+     inner(grad(cp_t), K_i*(grad(p_i) - khat)) + \
+     cp_t*h2d2*invzeta_i*cp_i - cp_t*deltaV*Gamma0*Gamma_i
+# surface integral terms for compaction pressure
+scptop   = -cp_t*inner(K_i*(grad(p_i) - khat), fn)
+scpbot   = -cp_t*dot(v_i, fn)*phi_i
+# compaction pressure residual
+Fcp = bcp*dx + scpbot*ds(3) + scptop*ds(4)
+
+# total residual
+F = Fv + Fp + FT + Fphi + Fcp</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">F</string_value>
+          </ufl_symbol>
+        </form>
+        <form name="Jacobian" rank="1">
+          <string_value lines="20" type="code" language="python">J = derivative(F, u_i, u_a)</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">J</string_value>
+          </ufl_symbol>
+        </form>
+        <quadrature_rule name="canonical"/>
+        <snes_type name="ls">
+          <ls_type name="cubic"/>
+          <convergence_test name="default"/>
+        </snes_type>
+        <relative_error>
+          <real_value rank="0">1.e-5</real_value>
+        </relative_error>
+        <absolute_error>
+          <real_value rank="0">1.e-8</real_value>
+        </absolute_error>
+        <max_iterations>
+          <integer_value rank="0">50</integer_value>
+        </max_iterations>
+        <monitors>
+          <residual/>
+        </monitors>
+        <linear_solver>
+          <iterative_method name="fgmres">
+            <restart>
+              <integer_value rank="0">30</integer_value>
+            </restart>
+            <relative_error>
+              <real_value rank="0">1.e-6</real_value>
+            </relative_error>
+            <max_iterations>
+              <integer_value rank="0">100</integer_value>
+            </max_iterations>
+            <zero_initial_guess/>
+            <monitors>
+              <preconditioned_residual/>
+            </monitors>
+          </iterative_method>
+          <preconditioner name="fieldsplit">
+            <composite_type name="multiplicative"/>
+            <fieldsplit name="Convection">
+              <field name="Velocity"/>
+              <field name="Pressure"/>
+              <field name="Temperature"/>
+              <monitors/>
+              <linear_solver>
+                <iterative_method name="fgmres">
+                  <restart>
+                    <integer_value rank="0">30</integer_value>
+                  </restart>
+                  <relative_error>
+                    <real_value rank="0">1.e-6</real_value>
+                  </relative_error>
+                  <absolute_error>
+                    <real_value rank="0">1.e-11</real_value>
+                  </absolute_error>
+                  <max_iterations>
+                    <integer_value rank="0">100</integer_value>
+                  </max_iterations>
+                  <zero_initial_guess/>
+                  <monitors>
+                    <preconditioned_residual/>
+                  </monitors>
+                </iterative_method>
+                <preconditioner name="fieldsplit">
+                  <composite_type name="multiplicative"/>
+                  <fieldsplit name="Temperature">
+                    <field name="Temperature"/>
+                    <monitors/>
+                    <linear_solver>
+                      <iterative_method name="gmres">
+                        <restart>
+                          <integer_value rank="0">30</integer_value>
+                        </restart>
+                        <relative_error>
+                          <real_value rank="0">1.e-3</real_value>
+                        </relative_error>
+                        <max_iterations>
+                          <integer_value rank="0">100</integer_value>
+                        </max_iterations>
+                        <zero_initial_guess/>
+                        <monitors/>
+                      </iterative_method>
+                      <preconditioner name="sor"/>
+                    </linear_solver>
+                  </fieldsplit>
+                  <fieldsplit name="Stokes">
+                    <field name="Velocity"/>
+                    <field name="Pressure"/>
+                    <monitors/>
+                    <linear_solver>
+                      <iterative_method name="preonly"/>
+                      <preconditioner name="fieldsplit">
+                        <composite_type name="schur">
+                          <factorization_type name="full"/>
+                          <schur_preconditioner name="user">
+                            <form name="SchurPC" rank="1">
+                              <string_value lines="20" type="code" language="python">Spc = p_t*p_a/eta*dx</string_value>
+                              <ufl_symbol name="solver">
+                                <string_value lines="1">Spc</string_value>
+                              </ufl_symbol>
+                            </form>
+                            <monitors/>
+                          </schur_preconditioner>
+                        </composite_type>
+                        <fieldsplit name="Velocity">
+                          <field name="Velocity"/>
+                          <monitors/>
+                          <linear_solver>
+                            <iterative_method name="cg">
+                              <relative_error>
+                                <real_value rank="0">1.e-6</real_value>
+                              </relative_error>
+                              <max_iterations>
+                                <integer_value rank="0">100</integer_value>
+                              </max_iterations>
+                              <zero_initial_guess/>
+                              <monitors/>
+                            </iterative_method>
+                            <preconditioner name="fieldsplit">
+                              <composite_type name="additive"/>
+                              <fieldsplit name="Velocity1">
+                                <field name="Velocity">
+                                  <components>
+                                    <integer_value shape="1" rank="1">0</integer_value>
+                                  </components>
+                                </field>
+                                <monitors/>
+                                <linear_solver>
+                                  <iterative_method name="preonly"/>
+                                  <preconditioner name="hypre">
+                                    <hypre_type name="boomeramg"/>
+                                  </preconditioner>
+                                </linear_solver>
+                              </fieldsplit>
+                              <fieldsplit name="Velocity2">
+                                <field name="Velocity">
+                                  <components>
+                                    <integer_value shape="1" rank="1">1</integer_value>
+                                  </components>
+                                </field>
+                                <monitors/>
+                                <linear_solver>
+                                  <iterative_method name="preonly"/>
+                                  <preconditioner name="hypre">
+                                    <hypre_type name="boomeramg"/>
+                                  </preconditioner>
+                                </linear_solver>
+                              </fieldsplit>
+                            </preconditioner>
+                          </linear_solver>
+                        </fieldsplit>
+                        <fieldsplit name="Pressure">
+                          <field name="Pressure"/>
+                          <monitors/>
+                          <linear_solver>
+                            <iterative_method name="fgmres">
+                              <restart>
+                                <integer_value rank="0">30</integer_value>
+                              </restart>
+                              <relative_error>
+                                <real_value rank="0">1.e-3</real_value>
+                              </relative_error>
+                              <max_iterations>
+                                <integer_value rank="0">100</integer_value>
+                              </max_iterations>
+                              <zero_initial_guess/>
+                              <monitors/>
+                            </iterative_method>
+                            <preconditioner name="ksp">
+                              <linear_solver>
+                                <iterative_method name="cg">
+                                  <relative_error>
+                                    <real_value rank="0">1.e-6</real_value>
+                                  </relative_error>
+                                  <max_iterations>
+                                    <integer_value rank="0">100</integer_value>
+                                  </max_iterations>
+                                  <zero_initial_guess/>
+                                  <monitors/>
+                                </iterative_method>
+                                <preconditioner name="sor"/>
+                              </linear_solver>
+                            </preconditioner>
+                          </linear_solver>
+                        </fieldsplit>
+                      </preconditioner>
+                    </linear_solver>
+                  </fieldsplit>
+                </preconditioner>
+              </linear_solver>
+            </fieldsplit>
+            <fieldsplit name="Magma">
+              <field name="CompactionPressure"/>
+              <field name="Porosity"/>
+              <monitors/>
+              <linear_solver>
+                <iterative_method name="fgmres">
+                  <restart>
+                    <integer_value rank="0">30</integer_value>
+                  </restart>
+                  <relative_error>
+                    <real_value rank="0">1.e-7</real_value>
+                  </relative_error>
+                  <absolute_error>
+                    <real_value rank="0">1.e-12</real_value>
+                  </absolute_error>
+                  <max_iterations>
+                    <integer_value rank="0">20</integer_value>
+                  </max_iterations>
+                  <zero_initial_guess/>
+                  <monitors>
+                    <preconditioned_residual/>
+                  </monitors>
+                </iterative_method>
+                <preconditioner name="fieldsplit">
+                  <composite_type name="multiplicative"/>
+                  <fieldsplit name="CompactionPressure">
+                    <field name="CompactionPressure"/>
+                    <monitors/>
+                    <linear_solver>
+                      <iterative_method name="preonly"/>
+                      <preconditioner name="hypre">
+                        <hypre_type name="boomeramg"/>
+                      </preconditioner>
+                    </linear_solver>
+                  </fieldsplit>
+                  <fieldsplit name="Porosity">
+                    <field name="Porosity"/>
+                    <monitors/>
+                    <linear_solver>
+                      <iterative_method name="gmres">
+                        <restart>
+                          <integer_value rank="0">30</integer_value>
+                        </restart>
+                        <relative_error>
+                          <real_value rank="0">1.e-7</real_value>
+                        </relative_error>
+                        <max_iterations>
+                          <integer_value rank="0">50</integer_value>
+                        </max_iterations>
+                        <zero_initial_guess/>
+                        <monitors/>
+                      </iterative_method>
+                      <preconditioner name="eisenstat"/>
+                    </linear_solver>
+                  </fieldsplit>
+                </preconditioner>
+              </linear_solver>
+            </fieldsplit>
+          </preconditioner>
+        </linear_solver>
+        <never_ignore_solver_failures/>
+      </type>
+      <solve name="in_timeloop"/>
+    </nonlinear_solver>
+  </system>
+  <system name="CourantNumber">
+    <mesh name="Mesh"/>
+    <ufl_symbol name="global">
+      <string_value lines="1">uc</string_value>
+    </ufl_symbol>
+    <field name="CourantNumber">
+      <ufl_symbol name="global">
+        <string_value lines="1">c</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P0">
+            <family>
+              <string_value lines="1">DG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">0</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.</real_value>
+            </constant>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <nonlinear_solver name="Solver">
+      <type name="SNES">
+        <form name="Residual" rank="0">
+          <string_value lines="20" type="code" language="python"># Finite volume style estimate of Courant number
+# calculate the outward facing normal component of velocity for each facet
+n = FacetNormal(c_e.cell())
+vn = dot(v_i, n)
+vout = 0.5*(vn + abs(vn))
+
+# project the cell integral of the the outgoing flux from each cell
+F = c_t*c_i*dx - c_t('+')*vout('+')*dt('+')*dS - c_t('-')*vout('-')*dt('-')*dS - c_t*vout*dt*ds(1) - c_t*vout*dt*ds(2) - c_t*vout*dt*ds(3) - c_t*vout*dt*ds(4)</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">F</string_value>
+          </ufl_symbol>
+        </form>
+        <form name="Jacobian" rank="1">
+          <string_value lines="20" type="code" language="python">J = derivative(F,uc_i,uc_a)</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">J</string_value>
+          </ufl_symbol>
+        </form>
+        <quadrature_rule name="default"/>
+        <snes_type name="ls">
+          <ls_type name="cubic"/>
+          <convergence_test name="default"/>
+        </snes_type>
+        <relative_error>
+          <real_value rank="0">1.e-6</real_value>
+        </relative_error>
+        <absolute_error>
+          <real_value rank="0">1.e-10</real_value>
+        </absolute_error>
+        <max_iterations>
+          <integer_value rank="0">1</integer_value>
+        </max_iterations>
+        <monitors/>
+        <linear_solver>
+          <iterative_method name="preonly"/>
+          <preconditioner name="jacobi"/>
+        </linear_solver>
+        <never_ignore_solver_failures/>
+      </type>
+      <solve name="with_diagnostics"/>
+    </nonlinear_solver>
+  </system>
+  <system name="Gamma">
+    <mesh name="Mesh"/>
+    <ufl_symbol name="global">
+      <string_value lines="1">ugamma</string_value>
+    </ufl_symbol>
+    <field name="Gamma">
+      <ufl_symbol name="global">
+        <string_value lines="1">gamma</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Scalar" rank="0">
+          <element name="P2">
+            <family>
+              <string_value lines="1">CG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant>
+              <real_value rank="0">0.0</real_value>
+            </constant>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <nonlinear_solver name="Solver">
+      <type name="SNES">
+        <form name="Residual" rank="0">
+          <string_value lines="20" type="code" language="python"># melting rate
+Gamma = v_i[1]*dFdy
+
+F = gamma_t*(gamma_i - Gamma0*Gamma)*dx</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">F</string_value>
+          </ufl_symbol>
+        </form>
+        <form name="Jacobian" rank="1">
+          <string_value lines="20" type="code" language="python">J = derivative(F,ugamma_i,ugamma_a)</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">J</string_value>
+          </ufl_symbol>
+        </form>
+        <quadrature_rule name="default"/>
+        <snes_type name="ksponly"/>
+        <relative_error>
+          <real_value rank="0">1.e-9</real_value>
+        </relative_error>
+        <max_iterations>
+          <integer_value rank="0">10</integer_value>
+        </max_iterations>
+        <monitors/>
+        <linear_solver>
+          <iterative_method name="cg">
+            <relative_error>
+              <real_value rank="0">1.e-8</real_value>
+            </relative_error>
+            <max_iterations>
+              <integer_value rank="0">20</integer_value>
+            </max_iterations>
+            <zero_initial_guess/>
+            <monitors>
+              <preconditioned_residual/>
+            </monitors>
+          </iterative_method>
+          <preconditioner name="sor"/>
+        </linear_solver>
+        <never_ignore_solver_failures/>
+      </type>
+      <solve name="with_diagnostics"/>
+    </nonlinear_solver>
+  </system>
+  <system name="Flux">
+    <mesh name="Mesh"/>
+    <ufl_symbol name="global">
+      <string_value lines="1">ufq</string_value>
+    </ufl_symbol>
+    <field name="FluidFlux">
+      <ufl_symbol name="global">
+        <string_value lines="1">fq</string_value>
+      </ufl_symbol>
+      <type name="Function">
+        <rank name="Vector" rank="1">
+          <element name="P2DG">
+            <family>
+              <string_value lines="1">DG</string_value>
+            </family>
+            <degree>
+              <integer_value rank="0">2</integer_value>
+            </degree>
+          </element>
+          <initial_condition type="initial_condition" name="WholeMesh">
+            <constant name="dim">
+              <real_value shape="2" dim1="dim" rank="1">0.0 0.0</real_value>
+            </constant>
+          </initial_condition>
+        </rank>
+      </type>
+      <diagnostics>
+        <include_in_visualization/>
+        <include_in_statistics/>
+      </diagnostics>
+    </field>
+    <nonlinear_solver name="Solver">
+      <type name="SNES">
+        <form name="Residual" rank="0">
+          <string_value lines="20" type="code" language="python"># permeability
+K_i       = phi_i**n
+Kreg_i    = (phi_i + phieps)**n
+
+F = inner(fq_t,fq_i - phi_i*v_i + Kreg_i*grad(cp_i) + K_i*(grad(p_i) - khat))*dx</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">F</string_value>
+          </ufl_symbol>
+        </form>
+        <form name="Jacobian" rank="1">
+          <string_value lines="20" type="code" language="python">J = derivative(F,ufq_i,ufq_a)</string_value>
+          <ufl_symbol name="solver">
+            <string_value lines="1">J</string_value>
+          </ufl_symbol>
+        </form>
+        <quadrature_rule name="default"/>
+        <snes_type name="ls">
+          <ls_type name="cubic"/>
+          <convergence_test name="default"/>
+        </snes_type>
+        <relative_error>
+          <real_value rank="0">1.e-7</real_value>
+        </relative_error>
+        <absolute_error>
+          <real_value rank="0">1.e-12</real_value>
+        </absolute_error>
+        <max_iterations>
+          <integer_value rank="0">1</integer_value>
+        </max_iterations>
+        <monitors>
+          <residual/>
+        </monitors>
+        <linear_solver>
+          <iterative_method name="cg">
+            <relative_error>
+              <real_value rank="0">1.e-7</real_value>
+            </relative_error>
+            <max_iterations>
+              <integer_value rank="0">20</integer_value>
+            </max_iterations>
+            <zero_initial_guess/>
+            <monitors>
+              <preconditioned_residual/>
+            </monitors>
+          </iterative_method>
+          <preconditioner name="sor"/>
+        </linear_solver>
+        <never_ignore_solver_failures/>
+      </type>
+      <solve name="with_diagnostics"/>
+    </nonlinear_solver>
+  </system>
+</terraferma_options>

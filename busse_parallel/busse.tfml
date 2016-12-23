@@ -252,7 +252,7 @@ recRa = 1./Ra
 eta   = 1.
 
 rv = (inner(sym(grad(v_t)), 2.*eta*sym(grad(v_i))) - div(v_t)*p_i - T_i*v_t[2])*dx
-rp = p_t*div(v_i)*dx
+rp = -p_t*div(v_i)*dx
 rT = (T_t*((T_i - T_n) + dt*theta*inner(v_theta, grad(T_i)) + dt*(1.-theta)*inner(v_theta, grad(T_n))) + dt*recRa*theta*inner(grad(T_t), grad(T_i)) + dt*recRa*(1.-theta)*inner(grad(T_t), grad(T_n)))*dx
 
 r = rv + rp + rT</string_value>

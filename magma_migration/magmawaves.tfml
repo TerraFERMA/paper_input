@@ -87,7 +87,37 @@
       </adaptive>
     </timestep>
   </timestepping>
-  <global_parameters/>
+  <global_parameters>
+    <python>
+      <string_value type="code" lines="20" language="python"># Initialize to single solitary wave profile 
+# using PySolwave routines 
+# This header will act as a global header to all subsequent def val instances
+# (with great power comes great responsibility)
+
+from pysolwave.tfsolitarywave import TFSolitaryWave
+from glob import glob
+
+tfmlfile = glob("magmawaves.tfml")[0]
+#initialize solitary wave object from tfmlfile
+tfswave = TFSolitaryWave(tfmlfile, \
+                         system_name="Magma", \
+                         f_name="Porosity", \
+                         p_name="Pressure", \
+                         c_name="c", n_name="n", \
+                         m_name="m", d_name="d", \
+                         N_name="N", \
+                         h_squared_name="h_on_delta_squared", \
+                         x0_name="x0")
+
+# print out some info about the solitary wave 
+print "Solitary Wave information:"
+print "c=",tfswave.swave.c, " n =",tfswave.swave.n, " d=",tfswave.swave.d, " r_max=",tfswave.rmax
+
+print "f=",tfswave.swave.f
+
+import numpy as np</string_value>
+    </python>
+  </global_parameters>
   <system name="Magma">
     <mesh name="Mesh"/>
     <ufl_symbol name="global">
@@ -109,34 +139,7 @@
           </element>
           <initial_condition type="initial_condition" name="WholeMesh">
             <python rank="0">
-              <string_value lines="20" type="code" language="python"># Initialize to single solitary wave profile 
-# using PySolwave routines 
-# This header will act as a global header to all subsequent def val instances
-# (with great power comes great responsibility)
-
-from pysolwave.tfsolitarywave import TFSolitaryWave
-from glob import glob
-
-tfmlfile = glob("magmawaves.tfml")[0]
-#initialize solitary wave object from tfmlfile
-tfswave = TFSolitaryWave(tfmlfile, \
-                         system_name="Magma", \
-                         f_name="Porosity", \
-                         p_name="Pressure", \
-                         c_name="c", n_name="n", \
-                         m_name="m", d_name="d", \
-                         N_name="N", \
-                         h_squared_name="h_squared", \
-                         x0_name="x0")
-
-# print out some info about the solitary wave 
-print "Solitary Wave information:"
-print "c=",tfswave.swave.c, " n =",tfswave.swave.n, " d=",tfswave.swave.d, " r_max=",tfswave.rmax
-
-print "f=",tfswave.swave.f
-
-# python function for setting initial condition
-import numpy as np
+              <string_value lines="20" type="code" language="python"># python function for setting initial condition
 def val(x):
   global tfswave,np
   f = tfswave.eval(np.array(x))
@@ -194,9 +197,9 @@ def val(x):
       <diagnostics/>
       <comment>background solid advection velocity</comment>
     </coefficient>
-    <coefficient name="h_squared">
+    <coefficient name="h_on_delta_squared">
       <ufl_symbol name="global">
-        <string_value lines="1">hsquared</string_value>
+        <string_value lines="1">h2d2</string_value>
       </ufl_symbol>
       <type name="Constant">
         <rank name="Scalar" rank="0">
@@ -325,13 +328,15 @@ def val(x):
       <type name="SNES">
         <form name="Residual" rank="0">
           <string_value lines="20" type="code" language="python"># outward facing facet normal
-fn = FacetNormal(u.cell())
+fn = FacetNormal(u.ufl_domain())
 
 # porosity at a half-time step
 phi_half = 0.5*(phi_i + phi_n)
 # inverse bulk viscosity function
-invzeta_i = phi_i**m
-invzeta_n = phi_n**m
+# (assuming isoviscous shear viscosity)
+eta = 1.0
+invzeta_i = (phi_i**m)/eta
+invzeta_n = (phi_n**m)/eta
 # permeability
 K_i       = phi_i**n
 
@@ -342,7 +347,7 @@ vnout = 0.5*(vn + abs(vn))
 
 # body integrals for porosity
 bphim = phi_t*(phi_i - phi_n - 
-               dt*0.5*hsquared*(p_i*invzeta_i + p_n*invzeta_n))
+               dt*0.5*h2d2*(p_i*invzeta_i + p_n*invzeta_n))
 # body integrals for advective integrals
 bphia = -dt*dot(grad(phi_t), v*phi_half) - dt*phi_t*div(v)*phi_half
 # all porosity body integrals
@@ -358,7 +363,7 @@ Fphi =  bphi*dx + sphitop*ds(4) + sphibot*ds(3) + sphifacet*dS
 
 # body integral for pressure
 bp = inner(grad(p_t), K_i*(grad(p_i) - khat)) + \
-     p_t*hsquared*invzeta_i*p_i 
+     p_t*h2d2*invzeta_i*p_i 
 # surface integral terms for fluid flux 
 # force -K[grad(p) - khat].n = 1 on top boundary
 sptop = p_t
