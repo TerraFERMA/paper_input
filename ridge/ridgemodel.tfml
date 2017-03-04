@@ -593,6 +593,7 @@ F = Fv + Fp + FT + Fphi + Fcp</string_value>
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="canonical"/>
         <snes_type name="ls">
           <ls_type name="cubic"/>
@@ -897,6 +898,7 @@ F = c_t*c_i*dx - c_t('+')*vout('+')*dt('+')*dS - c_t('-')*vout('-')*dt('-')*dS -
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="default"/>
         <snes_type name="ls">
           <ls_type name="cubic"/>
@@ -969,6 +971,7 @@ F = gamma_t*(gamma_i - Gamma0*Gamma)*dx</string_value>
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="default"/>
         <snes_type name="ksponly"/>
         <relative_error>
@@ -1047,6 +1050,7 @@ F = inner(fq_t,fq_i - phi_i*v_i + Kreg_i*grad(cp_i) + K_i*(grad(p_i) - khat))*dx
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="default"/>
         <snes_type name="ls">
           <ls_type name="cubic"/>

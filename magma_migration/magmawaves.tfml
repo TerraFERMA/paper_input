@@ -89,7 +89,7 @@
   </timestepping>
   <global_parameters>
     <python>
-      <string_value type="code" lines="20" language="python"># Initialize to single solitary wave profile 
+      <string_value lines="20" type="code" language="python"># Initialize to single solitary wave profile 
 # using PySolwave routines 
 # This header will act as a global header to all subsequent def val instances
 # (with great power comes great responsibility)
@@ -384,6 +384,7 @@ F = Fphi + Fp</string_value>
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="default"/>
         <snes_type name="ls">
           <ls_type name="cubic"/>
@@ -511,6 +512,7 @@ F = cfl_t*cfl_i*dx - cfl_t('+')*vout('+')*dt('+')*dS - cfl_t('-')*vout('-')*dt('
             <string_value lines="1">J</string_value>
           </ufl_symbol>
         </form>
+        <form_representation name="quadrature"/>
         <quadrature_rule name="default"/>
         <snes_type name="ls">
           <ls_type name="cubic"/>
